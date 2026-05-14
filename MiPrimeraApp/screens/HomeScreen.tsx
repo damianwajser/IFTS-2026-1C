@@ -1,7 +1,7 @@
 import { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
 import React from "react";
 import { View, Text, StyleSheet, Button } from "react-native";
-import { RootTabParamList } from "../App";
+import { RootTabParamList } from "../App-FOMR";
 
 type NavProp = BottomTabNavigationProp<RootTabParamList, 'Home'>;
 
