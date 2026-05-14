@@ -1,64 +1,66 @@
-import React from 'react';
-import { NavigationContainer } from '@react-navigation/native';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import DetailScreen from './screens/DetailScreen';
-import HomeScreen from './screens/HomeScreen';
-import DetailScreen2 from './screens/DetailScreen2';
-import { Ionicons } from '@expo/vector-icons';
+import React, { useState } from 'react';
+import { Text, View, TextInput, Button, Switch } from 'react-native';
 
-export type RootTabParamList = {
-  Home: undefined;
-  Details: {
-    productId?: number; 
-    username?: string;
-  };
-  Details2: {
-    username?: string;
-  };
-
+type UserForm = {
+  usuario: string;
+  email: string;
+  edad: string;
+  acepta: boolean;
 }
 
-const Tab = createBottomTabNavigator<RootTabParamList>();
+const App: React.FC = () => {
+  
+  const [user,setUser] = useState<UserForm>({
+    usuario: '',
+    email: '',
+    edad: '',
+    acepta: false
+  });
 
-const App : React.FC = () => {
+  const { usuario, email, edad, acepta } = user;
+  // estado derivado (no otro useState): se calcula en cada render
+  const validar = esMayorDeEdad(edad) && acepta && usuario.trim() !== '' && email.trim() !== '';
+
   return (
-    <NavigationContainer>
-      <Tab.Navigator 
-        initialRouteName='Home'
-        screenOptions={({ route }) => ({
-          headerShown: false,
-          tabBarIcon: ({ color, size }) => {
-            let iconName: React.ComponentProps<typeof Ionicons>['name'] = 'help';
-            switch (route.name) {
-              case 'Home':
-                iconName = 'home-outline';
-                break;
-              case 'Details':
-                iconName = 'desktop-outline';
-                break;
-              case 'Details2':
-                iconName = 'settings-outline';
-                break;
-              default:
-                iconName = 'help';
-                break;
-            }
-            return <Ionicons name={iconName} size={size} color={color} />;
-          },
-          tabBarActiveTintColor: '#2563eb',
-          tabBarInactiveTintColor: '#6b7280',
-          tabBarLabelStyle: { fontSize: 12 },
-          tabBarStyle: { height: 58, paddingBottom: 0, paddingTop: 6},
-        })}
-      >
-       
-        <Tab.Screen name='Details' component={DetailScreen} 
-                initialParams={{username:"damian", productId: 7}}/>
-        <Tab.Screen name='Home' component={HomeScreen} />
-        <Tab.Screen name='Details2' component={DetailScreen2} initialParams={{username:"Roberto"}} />
-      </Tab.Navigator>
-    </NavigationContainer>
+    <View style={{
+      flex: 1, padding: 16, justifyContent: "center",
+      gap: 8
+    }}>
+      <Text>Usuario</Text>
+      <TextInput
+        value={usuario}
+        onChangeText={(t) => setUser({...user, usuario: t})}
+        placeholder="Escriba su usuario"
+        style={{ borderWidth: 1, padding: 8 }}
+      />
+      <Text>Email</Text>
+      <TextInput
+        value={email}
+        onChangeText={(t) => setUser({...user, email: t})}
+        placeholder="Escriba su email"
+        autoCapitalize="none"
+        keyboardType="email-address"
+        style={{ borderWidth: 1, padding: 8 }}
+      />
+      <Text>Edad</Text>
+      <TextInput
+        value={edad}
+        onChangeText={(t) => /^\d*$/.test(t) ? setUser({...user, edad: t}):undefined}
+        placeholder="Escriba su Edad"
+        keyboardType="numeric"
+        style={{ borderWidth: 1, padding: 8 }}
+      />
+      <Text>Acepta TyC</Text>
+      <Switch value={acepta} onValueChange={(value) => setUser({...user, acepta: value})} />
+      <Button title="Enviar" onPress={() => { console.log({ user }) }}
+        disabled={!validar} />
+    </View>
   );
 };
 
 export default App;
+
+function esMayorDeEdad(edad: string): boolean {
+  const edadNumerica = parseInt(edad);
+  return !(isNaN(edadNumerica) || edadNumerica <= 18);
+}
